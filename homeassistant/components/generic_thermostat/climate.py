@@ -32,6 +32,7 @@ from homeassistant.const import (
     SERVICE_TURN_OFF,
     SERVICE_TURN_ON,
     STATE_ON,
+    STATE_OFF,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
@@ -143,23 +144,23 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
     """Representation of a Generic Thermostat device."""
 
     def __init__(
-        self,
-        name,
-        heater_entity_id,
-        sensor_entity_id,
-        min_temp,
-        max_temp,
-        target_temp,
-        ac_mode,
-        min_cycle_duration,
-        cold_tolerance,
-        hot_tolerance,
-        keep_alive,
-        initial_hvac_mode,
-        away_temp,
-        precision,
-        unit,
-        unique_id,
+            self,
+            name,
+            heater_entity_id,
+            sensor_entity_id,
+            min_temp,
+            max_temp,
+            target_temp,
+            ac_mode,
+            min_cycle_duration,
+            cold_tolerance,
+            hot_tolerance,
+            keep_alive,
+            initial_hvac_mode,
+            away_temp,
+            precision,
+            unit,
+            unique_id,
     ):
         """Initialize the thermostat."""
         self._name = name
@@ -219,8 +220,8 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
             """Init on startup."""
             sensor_state = self.hass.states.get(self.sensor_entity_id)
             if sensor_state and sensor_state.state not in (
-                STATE_UNAVAILABLE,
-                STATE_UNKNOWN,
+                    STATE_UNAVAILABLE,
+                    STATE_UNKNOWN,
             ):
                 self._async_update_temp(sensor_state)
                 self.async_write_ha_state()
@@ -431,9 +432,9 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
         """Check if we need to turn heating on or off."""
         async with self._temp_lock:
             if not self._active and None not in (
-                self._cur_temp,
-                self._target_temp,
-                self._is_device_active,
+                    self._cur_temp,
+                    self._target_temp,
+                    self._is_device_active,
             ):
                 self._active = True
                 _LOGGER.info(
@@ -498,7 +499,8 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
         if not self.hass.states.get(self.heater_entity_id):
             return None
 
-        return self.hass.states.is_state(self.heater_entity_id, STATE_ON)
+        return self.hass.states.is_state(self.heater_entity_id, STATE_ON) or \
+            (not self.hass.states.is_state(self.heater_entity_id, STATE_OFF))
 
     @property
     def supported_features(self):
